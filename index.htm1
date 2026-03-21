@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة تحويل الصور إلى PDF - سريعة ومجانية وم آمنة</title>
+    <meta name="description" content="حوّل صورك بسهولة وبسرعة إلى ملفات PDF عالية الجودة مباشرة من متصفحك. أداة مجانية 100% ولا تحفظ صورك على السيرفر لضمان خصوصيتك.">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #28a745;
+            --background-color: #f8f9fa;
+            --text-color: #343a40;
+            --card-background: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--card-background);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 2.2rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .tool-section {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tool-section h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .tool-section p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: #e6f7ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #ccc;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .convert-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .convert-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .convert-btn:active {
+            transform: translateY(0);
+        }
+
+        #file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .content-section {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .content-section h3 {
+            color: var(--primary-color);
+            border-right: 4px solid var(--primary-color);
+            padding-right: 15px;
+            margin-bottom: 20px;
+        }
+
+        .content-section p, .content-section ul {
+            font-size: 1.05rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .content-section ul {
+            padding-right: 25px;
+        }
+
+        .content-section li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: rgba(255,255,255,0.8);
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>سريعPDF</h1>
+        <p>تحويل الصور إلى PDF بكل بساطة وامان</p>
+    </header>
+
+    <div class="container">
+        <section class="tool-section">
+            <h2>حوّل صورك إلى ملف PDF الآن</h2>
+            <p>اختر الصورة التي تريد تحويلها من جهازك، وسنقوم بتحويلها لك في ثوانٍ معدودة.</p>
+            
+            <div class="upload-area" id="drop-zone" onclick="document.getElementById('imageInput').click()">
+                <span class="upload-icon">⬆️</span>
+                <span>اضغط هنا لاختيار الصورة</span>
+                <p id="file-name">لم يتم اختيار أي ملف</p>
+            </div>
+            
+            <input type="file" id="imageInput" accept="image/*" onchange="displayFileName(this)">
+            <br>
+            <button class="convert-btn" onclick="convertToPDF()">⬇️ تحميل بصيغة PDF</button>
+        </section>
+
+        <section class="content-section">
+            <h3>لماذا تستخدم أداة "سريعPDF"؟</h3>
+            <p>في عصرنا الرقمي، أصبحت ملفات PDF هي المعيار العالمي لمشاركة المستندات وضمان عرضها بشكل صحيح على جميع الأجهزة. أداة "سريعPDF" توفر لك طريقة سهلة، سريعة، ومجانية تماماً لتحويل صورك الهامة إلى هذا التنسيق الموثوق.</p>
+            
+            <h3>مميزات أداتنا لتحويل الصور</h3>
+            <ul>
+                <li><strong>مجانية بالكامل:</strong> لا توجد رسوم خفية أو حدود لعدد مرات الاستخدام.</li>
+                <li><strong>الخصوصية التامة:</strong> يتم تحويل الصور داخل متصفحك مباشرة. نحن لا نرفع صورك إلى أي سيرفر، مما يضمن خصوصيتك وأمان بياناتك.</li>
+                <li><strong>سرعة فائقة:</strong> عملية التحويل تتم في ثوانٍ، لتتمكن من تحميل ملفك فوراً.</li>
+                <li><strong>جودة عالية:</strong> نحافظ على جودة الصورة الأصلية عند تحويلها إلى PDF.</li>
+                <li><strong>سهولة الاستخدام:</strong> واجهة بسيطة مصممة لتجربة مستخدم مريحة.</li>
+            </ul>
+
+            <h3>كيفية تحويل الصورة إلى PDF؟</h3>
+            <p>1. قم بالضغط على منطقة التحميل لاختيار الصورة من جهازك.<br>
+            2. ستظهر لك اسم الصورة المختارة.<br>
+            3. اضغط على زر "تحميل بصيغة PDF".<br>
+            4. سيتم حفظ الملف على جهازك فوراً.</p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 سريعPDF. جميع الحقوق محفوظة.</p>
+    
+    </footer>
+
+    <script>
+        // دالة لعرض اسم الملف المختار
+        function displayFileName(input) {
+            const fileName = input.files.length > 0 ? input.files[0].name : "لم يتم اختيار أي ملف";
+            document.getElementById('file-name').innerText = "تم اختيار: " + fileName;
+        }
+
+        // دالة تحويل الصورة إلى PDF
+        async function convertToPDF() {
+            const { jsPDF } = window.jspdf;
+            const input = document.getElementById('imageInput');
+            if (input.files.length === 0) return alert("الرجاء اختيار صورة أولاً");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const pdf = new jsPDF();
+                    const width = pdf.internal.pageSize.getWidth();
+                    const height = pdf.internal.pageSize.getHeight();
+                    
+                    // حساب النسبة للحفاظ على أبعاد الصورة
+                    const ratio = Math.min(width / img.width, height / img.height);
+                    const finalWidth = img.width * ratio;
+                    const finalHeight = img.height * ratio;
+                    const x = (width - finalWidth) / 2;
+                    const y = (height - finalHeight) / 2;
+                    
+                    pdf.addImage(img, 'JPEG', x, y, finalWidth, finalHeight);
+                    pdf.save("sari-pdf-file.pdf");
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    </script>
+</body>
+</html>
