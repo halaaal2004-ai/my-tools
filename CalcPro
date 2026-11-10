@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>CalcPro | Smart Calculator</title>
+<style>
+:root{
+  --bg:#f2f5fa;--panel:#ffffff;--text:#182235;
+  --muted:#8490a3;--key:#f0f3f8;--accent:#526df5;
+  --accent2:#e9edff;--border:#e8edf5;
+  --shadow:0 15px 45px rgba(32,48,80,.09);
+}
+.dark{
+  --bg:#0d1422;--panel:#172235;--text:#f2f5fc;
+  --muted:#91a0b8;--key:#223149;--accent:#8293ff;
+  --accent2:#29375a;--border:#29364c;
+  --shadow:0 15px 45px rgba(0,0,0,.22);
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ min-height:100vh;transition:.25s;
+}
+header{
+ max-width:1100px;margin:auto;padding:22px 24px;
+ display:flex;justify-content:space-between;align-items:center;
+}
+.logo{font-size:23px;font-weight:850;letter-spacing:-1px}
+.logo span{color:var(--accent)}
+.header-actions{display:flex;gap:10px}
+button{cursor:pointer;font:inherit;border:0}
+.icon-btn{
+ width:42px;height:42px;border-radius:14px;
+ background:var(--panel);color:var(--text);font-size:18px;
+ border:1px solid var(--border);
+}
+main{
+ max-width:1100px;margin:15px auto 50px;padding:0 20px;
+ display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.8fr);
+ gap:22px;align-items:start;
+}
+.card{
+ background:var(--panel);border:1px solid var(--border);
+ border-radius:25px;padding:22px;box-shadow:var(--shadow);
+}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h2{font-size:19px;margin:0}
+.muted{color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:20px 0}
+.tab{
+ padding:10px 15px;border-radius:12px;
+ background:var(--key);color:var(--muted);
+ font-size:13px;font-weight:700;
+}
+.tab.active{background:var(--accent);color:white}
+.display{
+ background:var(--bg);border:1px solid var(--border);
+ border-radius:19px;padding:18px;margin-bottom:17px;
+ min-height:125px;display:flex;flex-direction:column;
+ justify-content:space-between;text-align:right;overflow:hidden;
+}
+.expression{color:var(--muted);font-size:17px;min-height:25px;overflow-wrap:anywhere}
+.result{font-size:clamp(30px,6vw,43px);font-weight:750;letter-spacing:-1.5px;overflow-wrap:anywhere}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.key{
+ min-height:58px;border-radius:15px;background:var(--key);
+ color:var(--text);font-size:19px;font-weight:650;
+ transition:transform .12s,filter .12s;
+}
+.key:active{transform:scale(.95);filter:brightness(.94)}
+.key.op{color:var(--accent);background:var(--accent2)}
+.key.equal{background:var(--accent);color:white}
+.key.danger{color:#ef6676}
+.science-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.science-grid .key{font-size:14px;min-height:43px}
+.panel-section{margin-top:20px}
+.panel-section h3{font-size:15px;margin:0 0 12px}
+.history-item{
+ padding:12px 0;border-bottom:1px solid var(--border);
+ display:flex;justify-content:space-between;gap:10px;
+ font-size:13px;
+}
+.history-item strong{font-size:15px}
+.small-btn{
+ background:var(--key);color:var(--text);border-radius:10px;
+ padding:8px 11px;font-size:12px;
+}
+.history-list{max-height:250px;overflow:auto}
+.empty{color:var(--muted);font-size:13px;padding:15px 0}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}
+.field input,.field select{
+ width:100%;padding:12px;border:1px solid var(--border);
+ background:var(--bg);color:var(--text);border-radius:12px;
+ outline:none;font-size:15px;
+}
+.fin-result{
+ background:var(--accent2);border-radius:15px;padding:17px;
+ margin-top:15px;
+}
+.fin-result small{color:var(--muted)}
+.fin-result strong{display:block;font-size:27px;margin-top:5px;color:var(--accent)}
+.action-btn{
+ width:100%;padding:13px;background:var(--accent);
+ color:white;border-radius:13px;font-weight:700;margin-top:14px;
+}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
+@media(max-width:760px){
+ main{grid-template-columns:1fr;margin-top:5px;padding:0 13px}
+ header{padding:17px}
+ .card{padding:16px;border-radius:20px}
+ .keypad{gap:7px}
+ .key{min-height:55px}
+ .science-grid{gap:6px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">Calc<span>Pro.</span></div>
+ <div class="header-actions">
+  <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
+  <button class="icon-btn" id="copyBtn" aria-label="Copy result">▢</button>
+ </div>
+</header>
+
+<main>
+<section class="card">
+ <div class="topline">
+  <h2>Calculator</h2>
+  <span class="muted" id="angleLabel">DEG</span>
+ </div>
+
+ <div class="tabs">
+  <button class="tab active" data-mode="standard">Standard</button>
+  <button class="tab" data-mode="scientific">Scientific</button>
+  <button class="tab" data-mode="financial">Financial</button>
+ </div>
+
+ <div id="calcArea">
+  <div class="display">
+   <div class="expression" id="expression">Ready to calculate</div>
+   <div class="result" id="result">0</div>
+  </div>
+
+  <div id="scienceKeys" class="science-grid" hidden>
+   <button class="key op" data-insert="sin(">sin</button>
+   <button class="key op" data-insert="cos(">cos</button>
+   <button class="key op" data-insert="tan(">tan</button>
+   <button class="key op" data-insert="log(">log</button>
+   <button class="key op" data-insert="ln(">ln</button>
+   <button class="key op" data-insert="sqrt(">√</button>
+   <button class="key op" data-insert="^2">x²</button>
+   <button class="key op" data-insert="^">xʸ</button>
+   <button class="key op" data-insert="π">π</button>
+   <button class="key op" data-insert="e">e</button>
+   <button class="key op" data-insert="(">(</button>
+   <button class="key op" data-insert=")">)</button>
+   <button class="key op" data-insert="!">n!</button>
+   <button class="key op" data-insert="%">%</button>
+   <button class="key op" id="angleBtn">DEG/RAD</button>
+  </div>
+
+  <div class="keypad" id="keypad">
+   <button class="key danger" data-action="clear">AC</button>
+   <button class="key op" data-action="back">⌫</button>
+   <button class="key op" data-insert="%">%</button>
+   <button class="key op" data-insert="÷">÷</button>
+
+   <button class="key" data-insert="7">7</button>
+   <button class="key" data-insert="8">8</button>
+   <button class="key" data-insert="9">9</button>
+   <button class="key op" data-insert="×">×</button>
+
+   <button class="key" data-insert="4">4</button>
+   <button class="key" data-insert="5">5</button>
+   <button class="key" data-insert="6">6</button>
+   <button class="key op" data-insert="−">−</button>
+
+   <button class="key" data-insert="1">1</button>
+   <button class="key" data-insert="2">2</button>
+   <button class="key" data-insert="3">3</button>
+   <button class="key op" data-insert="+">+</button>
+
+   <button class="key" data-action="sign">±</button>
+   <button class="key" data-insert="0">0</button>
+   <button class="key" data-insert=".">.</button>
+   <button class="key equal" data-action="equal">=</button>
+  </div>
+ </div>
+
+ <div id="financialArea" hidden>
+  <h3>Financial Calculator</h3>
+  <div class="field" style="margin-bottom:14px">
+   <label>Calculation type</label>
+   <select id="finType">
+    <option value="discount">Discount</option>
+    <option value="tax">Add tax</option>
+    <option value="profit">Profit margin</option>
+    <option value="percent">Percentage of amount</option>
+    <option value="change">Percentage change</option>
+   </select>
+  </div>
+  <div class="fin-grid">
+   <div class="field">
+    <label id="labelA">Original price / Amount</label>
+    <input id="amountA" type="number" placeholder="1000">
+   </div>
+   <div class="field">
+    <label id="labelB">Percentage (%)</label>
+    <input id="amountB" type="number" placeholder="20">
+   </div>
+  </div>
+  <button class="action-btn" id="calculateFin">Calculate</button>
+  <div class="fin-result">
+   <small>Result</small>
+   <strong id="finResult">0.00</strong>
+   <small id="finDetail">Enter your values to begin</small>
+  </div>
+ </div>
+</section>
+
+<aside class="card">
+ <div class="topline">
+  <h2>History</h2>
+  <button class="small-btn" id="clearHistory">Clear all</button>
+ </div>
+ <p class="muted">Your recent calculations</p>
+ <div class="history-list" id="historyList">
+  <div class="empty">No calculations yet.</div>
+ </div>
+ <div class="panel-section">
+  <h3>Quick tools</h3>
+  <button class="small-btn" data-quick="10">10%</button>
+  <button class="small-btn" data-quick="15">15%</button>
+  <button class="small-btn" data-quick="20">20%</button>
+  <button class="small-btn" data-quick="25">25%</button>
+ </div>
+ <div class="panel-section">
+  <h3>About CalcPro</h3>
+  <p class="muted">A simple, smart and beautiful calculator for your everyday life.</p>
+ </div>
+</aside>
+</main>
+<footer>© 2026 CalcPro. Made for everyday calculations.</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let expression = "";
+let lastResult = 0;
+let angleMode = "DEG";
+let history = [];
+let currentMode = "standard";
+
+const display = () => {
+ $("expression").textContent = expression || "Ready to calculate";
+};
+
+function format(n){
+ if(!Number.isFinite(n)) return "Error";
+ return Number(n.toPrecision(12)).toLocaleString("en-US",{maximumFractionDigits:10});
+}
+
+function insert(v){
+ if(expression==="Error") expression="";
+ if(expression==="0" && /^[0-9.]$/.test(v)) expression="";
+ expression+=v;
+ display();
+ try {
+  const value=evaluate(expression);
+  if(Number.isFinite(value)) $("result").textContent=format(value);
+ }catch(e){}
+}
+
+function clearCalc(){
+ expression="";
+ $("expression").textContent="Ready to calculate";
+ $("result").textContent="0";
+}
+
+function factorial(n){
+ if(!Number.isInteger(n)||n<0||n>170) throw Error("Invalid factorial");
+ let r=1;
+ for(let i=2;i<=n;i++)r*=i;
+ return r;
+}
+
+// Safe expression parser: no eval() or Function()
+function evaluate(input){
+ let s=input.replace(/×/g,"*").replace(/÷/g,"/")
+ .replace(/−/g,"-").replace(/π/g,"pi");
+
+ if(!s.trim()) return 0;
+ let i=0;
+ const peek=()=>s[i]||"";
+ const eat=c=>{if(peek()===c){i++;return true}return false};
+ const number=()=>{
+  let start=i;
+  while(/[0-9.]/.test(peek())&&peek())i++;
+  if(start===i)throw Error("Number expected");
+  let n=Number(s.slice(start,i));
+  if(!Number.isFinite(n))throw Error("Invalid number");
+  return n;
+ };
+ const identifier=()=>{
+  let start=i;
+  while(/[a-z]/i.test(peek())&&peek())i++;
+  return s.slice(start,i);
+ };
+ const primary=()=>{
+  if(eat("+"))return unary();
+  if(eat("-"))return -unary();
+  if(eat("(")){
+   let v=add();
+   if(!eat(")"))throw Error("Missing )");
+   return v;
+  }
+  if(/[0-9.]/.test(peek())&&peek())return number();
+  if(/[a-z]/i.test(peek())){
+   let name=identifier().toLowerCase();
+   if(name==="pi")return Math.PI;
+   if(name==="e")return Math.E;
+   if(["sin","cos","tan","log","ln","sqrt"].includes(name)){
+    if(!eat("("))throw Error("Missing (");
+    let v=add();
+    if(!eat(")"))throw Error("Missing )");
+    if(name==="sqrt"&&v<0)throw Error("Invalid square root");
+    if(name==="log"&&v<=0||name==="ln"&&v<=0)throw Error("Invalid logarithm");
+    if(name==="sqrt")return Math.sqrt(v);
+    if(name==="log")return Math.log10(v);
+    if(name==="ln")return Math.log(v);
+    let a=angleMode==="DEG"?v*Math.PI/180:v;
+    return name==="sin"?Math.sin(a):name==="cos"?Math.cos(a):Math.tan(a);
+   }
+  }
+  throw Error("Invalid expression");
+ };
+ const postfix=()=>{
+  let v=primary();
+  while(true){
+   if(eat("!"))v=factorial(v);
+   else if(eat("%"))v/=100;
+   else break;
+  }
+  return v;
+ };
+ const power=()=>{
+  let a=postfix();
+  if(eat("^"))a=Math.pow(a,power());
+  return a;
+ };
+ const unary=()=>power();
+ const mul=()=>{
+  let v=unary();
+  while(true){
+   if(eat("*"))v*=unary();
+   else if(eat("/")){
+    let d=unary();if(d===0)throw Error("Division by zero");v/=d;
+   }else break;
+  }
+  return v;
+ };
+ const add=()=>{
+  let v=mul();
+  while(true){
+   if(eat("+"))v+=mul();
+   else if(eat("-"))v-=mul();
+   else break;
+  }
+  return v;
+ };
+ let result=add();
+ if(i!==s.length)throw Error("Invalid expression");
+ if(!Number.isFinite(result))throw Error("Invalid result");
+ return result;
+}
+
+function calculate(){
+ try{
+  let answer=evaluate(expression);
+  lastResult=answer;
+  $("result").textContent=format(answer);
+  addHistory(expression,answer);
+  expression=String(Number(answer.toPrecision(12)));
+  $("expression").textContent="Result";
+ }catch(e){
+  $("result").textContent="Error";
+  $("expression").textContent=e.message;
+ }
+}
+
+function addHistory(exp,result){
+ history.unshift({exp,result});
+ history=history.slice(0,30);
+ renderHistory();
+}
+function renderHistory(){
+ $("historyList").innerHTML="";
+ if(!history.length){
+  $("historyList").innerHTML='<div class="empty">No calculations yet.</div>';
+  return;
+ }
+ history.forEach(item=>{
+  const div=document.createElement("div");
+  div.className="history-item";
+  const left=document.createElement("span");
+  const right=document.createElement("strong");
+  left.textContent=item.exp;
+  right.textContent=format(item.result);
+  div.append(left,right);
+  div.addEventListener("click",()=>{
+   expression=String(item.result);
+   $("result").textContent=format(item.result);
+   display();
+  });
+  $("historyList").append(div);
+ });
+}
+
+$("keypad").addEventListener("click",e=>{
+ const b=e.target.closest("button");
+ if(!b)return;
+ if(b.dataset.insert!==undefined)insert(b.dataset.insert);
+ if(b.dataset.action==="clear")clearCalc();
+ if(b.dataset.action==="back"){
+  expression=expression.slice(0,-1);display();
+ }
+ if(b.dataset.action==="equal")calculate();
+ if(b.dataset.action==="sign")insert("−");
+});
+$("scienceKeys").addEventListener("click",e=>{
+ const b=e.target.closest("button");
+ if(!b)return;
+ if(b.dataset.insert!==undefined)insert(b.dataset.insert);
+});
+$("angleBtn").onclick=()=>{
+ angleMode=angleMode==="DEG"?"RAD":"DEG";
+ $("angleLabel").textContent=angleMode;
+ $("angleBtn").textContent=angleMode;
+};
+$("themeBtn").onclick=()=>{
+ document.body.classList.toggle("dark");
+ $("themeBtn").textContent=document.body.classList.contains("dark")?"☀":"☾";
+};
+$("copyBtn").onclick=async()=>{
+ try{
+  await navigator.clipboard.writeText($("result").textContent);
+  $("copyBtn").textContent="✓";
+  setTimeout(()=>$("copyBtn").textContent="▢",1000);
+ }catch(e){alert("Copy is not available in this browser.");}
+};
+document.querySelectorAll(".tab").forEach(tab=>{
+ tab.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  tab.classList.add("active");
+  currentMode=tab.dataset.mode;
+  $("calcArea").hidden=currentMode==="financial";
+  $("financialArea").hidden=currentMode!=="financial";
+  $("scienceKeys").hidden=currentMode!=="scientific";
+ };
+});
+$("clearHistory").onclick=()=>{history=[];renderHistory()};
+$("finType").onchange=()=>{
+ const type=$("finType").value;
+ $("labelA").textContent=type==="change"?"Old value":"Amount / Price";
+ $("labelB").textContent=type==="change"?"New value":"Percentage (%)";
+};
+$("calculateFin").onclick=()=>{
+ const a=Number($("amountA").value);
+ const b=Number($("amountB").value);
+ if($("amountA").value===""||$("amountB").value===""||!Number.isFinite(a)||!Number.isFinite(b)){
+  $("finResult").textContent="Invalid input";return;
+ }
+ const type=$("finType").value;
+ let result,detail="";
+ if(type==="discount"){
+  result=a*(1-b/100);detail="You save "+format(a*b/100);
+ }else if(type==="tax"){
+  result=a*(1+b/100);detail="Tax amount: "+format(a*b/100);
+ }else if(type==="profit"){
+  result=a*b/100;detail="Profit amount";
+ }else if(type==="percent"){
+  result=a*b/100;detail=format(b)+"% of "+format(a);
+ }else{
+  if(a===0){$("finResult").textContent="Cannot divide by zero";return;}
+  result=(b-a)/Math.abs(a)*100;
+  detail=(result>=0?"Increase: ":"Decrease: ")+format(Math.abs(result))+"%";
+ }
+ $("finResult").textContent=format(result);
+ $("finDetail").textContent=detail;
+ addHistory("Financial calculation",result);
+};
+document.querySelectorAll("[data-quick]").forEach(btn=>{
+ btn.onclick=()=>{
+  $("finType").value="percent";
+  $("amountB").value=btn.dataset.quick;
+  $("labelA").textContent="Amount";
+  $("labelB").textContent="Percentage (%)";
+  $("amountA").focus();
+ };
+});
+document.addEventListener("keydown",e=>{
+ if(e.target.matches("input,select"))return;
+ if(/^[0-9.]$/.test(e.key))insert(e.key);
+ else if(e.key==="+")insert("+");
+ else if(e.key==="-")insert("−");
+ else if(e.key==="*")insert("×");
+ else if(e.key==="/"){e.preventDefault();insert("÷")}
+ else if(e.key==="Enter"||e.key==="=")calculate();
+ else if(e.key==="Backspace"){expression=expression.slice(0,-1);display()}
+ else if(e.key==="Escape")clearCalc();
+});
+</script>
+</body>
+</html>
